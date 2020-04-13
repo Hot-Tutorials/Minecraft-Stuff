@@ -112,17 +112,31 @@ public class ModKeystrokes extends ModDraggable {
 	private List<Long> clicks = new ArrayList<Long>();
 	private boolean wasPressed;
 	private long lastPressed;
+	
+	private List<Long> clicks2 = new ArrayList<Long>();
+	private boolean wasPressed2;
+	private long lastPressed2;
 
 	@Override
 	public void render(ScreenPosition pos) {
 			
-			final boolean pressed = Mouse.isButtonDown(0);
+			final boolean lpressed = Mouse.isButtonDown(0);
+			final boolean rpressed = Mouse.isButtonDown(1);
 			
-			if(pressed != this.wasPressed) {
+			if(lpressed != this.wasPressed) {
 				this.lastPressed = System.currentTimeMillis() + 10;
-				this.wasPressed = pressed;
-				if(pressed) {
+				this.wasPressed = lpressed;
+				if(lpressed) {
 					this.clicks.add(this.lastPressed);
+				}
+			}
+			
+			if(rpressed != this.wasPressed2) {
+				this.lastPressed2 = System.currentTimeMillis() + 10;
+				this.wasPressed2 = rpressed;
+				if(rpressed) {
+					this.clicks2.add(this.lastPressed2);
+				}
 			}
 		
 			GL11.glPushMatrix();
@@ -148,8 +162,14 @@ public class ModKeystrokes extends ModDraggable {
 				if(key.cps) {
 					GlStateManager.pushMatrix();
 					GlStateManager.scale(0.5F, 0.5F, 0.5F);
-					GlStateManager.translate(pos.getAbsoluteX() + key.LMB.getX() + key.LMB.getWidth() / 2 - textWidth / 2F , pos.getAbsoluteY() + key.LMB.getY() + key.LMB.getHeight() / 2 + 4F, 1F);
-					font.drawString("CPS: " + getCPS(), pos.getAbsoluteX() + key.LMB.getX() + key.LMB.getWidth() / 2 - textWidth / 2 , pos.getAbsoluteY() + key.LMB.getY() + key.LMB.getHeight() / 2 + 4, -1);
+					GlStateManager.translate(pos.getAbsoluteX() + key.getX() + key.getWidth() / 2 - textWidth / 2F , pos.getAbsoluteY() + key.getY() + key.getHeight() / 2 + 4F, 1F);
+					if(key.getName().matches(key.LMB.getName())) {
+						font.drawString("CPS: " + getCPS(), pos.getAbsoluteX() + key.getX() + key.getWidth() / 2 - textWidth / 2 , pos.getAbsoluteY() + key.getY() + key.getHeight() / 2 + 4, -1);
+					}
+					
+					if(key.getName().matches(key.RMB.getName())) {
+						font.drawString("CPS: " + getCPS2(), pos.getAbsoluteX() + key.getX() + key.getWidth() / 2 - textWidth / 2 , pos.getAbsoluteY() + key.getY() + key.getHeight() / 2 + 4, -1);
+					}
 					GlStateManager.popMatrix();
 				}
 				
@@ -157,8 +177,6 @@ public class ModKeystrokes extends ModDraggable {
 	
 			GL11.glPopMatrix();
 		}
-		
-	}
 	
 	@Override
 	public void renderDummy(ScreenPosition pos) {
@@ -194,6 +212,12 @@ public class ModKeystrokes extends ModDraggable {
 		final long time = System.currentTimeMillis();
 		this.clicks.removeIf(aLong -> aLong + 1000 < time);
 		return this.clicks.size();
+	}
+	
+	private int getCPS2() {
+		final long time2 = System.currentTimeMillis();
+		this.clicks2.removeIf(aLong2 -> aLong2 + 1000 < time2);
+		return this.clicks2.size();
 	}
 
 }
